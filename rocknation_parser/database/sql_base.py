@@ -31,7 +31,7 @@ class MusicDbManager:
             (group_name, group_link, genre)
             )
 
-    def show_all_groupnames(self):
+    def show_all_groupnames(self) -> list:
         all_data = self._cursor.execute(
             """
             SELECT group_name FROM music

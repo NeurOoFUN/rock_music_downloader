@@ -1,4 +1,5 @@
 import os
+from collections.abc import Callable
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
@@ -24,19 +25,20 @@ class Ui_MainWindow(QMainWindow):
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
 
-        music_list_font = QtGui.QFont()
-        music_list_font.setPointSize(15)
+        self.music_list = self.list_widget(
+                (0, 0, 900, 715), 'music_list',
+                    self.db_instance.show_all_groupnames(), self.parser_lounch
+                )
 
-        self.music_list = QtWidgets.QListWidget(self)
-        self.music_list.setGeometry(QtCore.QRect(0, 0, 900, 715))
-        self.music_list.setObjectName("music_list")
-        self.music_list.setFont(music_list_font)
-        self.music_list.addItems(self.db_instance.show_all_groupnames())
-        self.music_list.itemClicked.connect(self.parser_lounch)
-
-        self.log_from_parser_module = self.log_label((10, 450, 881, 121), 'log_from_parser_module')
-        self.log_from_writer_module = self.log_label((10, 610, 881, 51), 'log_from_writer_module')
-        self.completion_notice = self.log_label((400, 610, 881, 51), 'completion_notice')
+        self.log_from_parser_module = self.log_label(
+                (10, 450, 881, 121), 'log_from_parser_module'
+                )
+        self.log_from_writer_module = self.log_label(
+                (10, 610, 881, 51), 'log_from_writer_module'
+                )
+        self.completion_notice = self.log_label(
+                (400, 610, 881, 51), 'completion_notice'
+                )
 
     def parser_lounch(self, item):
         selected_group = self.db_instance.group_selection(item.text())
@@ -44,14 +46,7 @@ class Ui_MainWindow(QMainWindow):
         if not os.path.exists(item.text()):
             os.mkdir(item.text())
 
-        msg_box = QMessageBox()
-        msg_box.setWindowTitle(' ')
-        msg_box.setText('Do you need live albums?')
-        msg_box.setIcon(QMessageBox.Information)
-        msg_box.addButton(QMessageBox.Yes)
-        msg_box.addButton(QMessageBox.No)
-        msg_box.buttonClicked.connect(self.user_answer)
-        msg_box.exec_()
+        self.live_albums = self.msg_box('Do you need live albums?', self.user_answer)
 
         self.music_list.hide()
         self.completion_notice.hide()
@@ -73,7 +68,31 @@ class Ui_MainWindow(QMainWindow):
     def user_answer(self, button):
         self.parser.user_answer = button.text()
 
-    def log_label(self, geomettry: tuple, obj_name: str):
+    def list_widget(
+            self, geometry: tuple, objname: str, items: list, signal_handler: Callable
+            ) -> QtWidgets.QListWidget:
+        list_font = QtGui.QFont()
+        list_font.setPointSize(15)
+
+        self.list = QtWidgets.QListWidget(self)
+        self.list.setGeometry(QtCore.QRect(*geometry))
+        self.list.setObjectName(objname)
+        self.list.setFont(list_font)
+        self.list.addItems(items)
+        self.list.itemClicked.connect(signal_handler)
+        return self.list
+
+    def msg_box(self, message: str, signal_handler: Callable):
+        msg_box = QMessageBox()
+        msg_box.setWindowTitle(' ')
+        msg_box.setText(message)
+        msg_box.setIcon(QMessageBox.Information)
+        msg_box.addButton(QMessageBox.Yes)
+        msg_box.addButton(QMessageBox.No)
+        msg_box.buttonClicked.connect(signal_handler)
+        msg_box.exec_()
+
+    def log_label(self, geomettry: tuple, obj_name: str) -> QtWidgets.QLabel:
         font = QtGui.QFont()
         font.setPointSize(30)
         
