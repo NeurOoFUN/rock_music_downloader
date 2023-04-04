@@ -30,11 +30,11 @@ class Ui_MainWindow(QMainWindow):
         self.tabWidget.setObjectName("tabWidget")
         self.tab_all_groups = QtWidgets.QWidget()
         self.tab_all_groups.setObjectName("tab_all_groups")
-        self.tabWidget.addTab(self.tab_all_groups, "All groups")
+        self.tabWidget.addTab(self.tab_all_groups, "All groups".rjust(75))
 
         self.tab_all_genres = QtWidgets.QWidget()
         self.tab_all_genres.setObjectName('tab_all_genres')
-        self.tabWidget.addTab(self.tab_all_genres, "Genres")
+        self.tabWidget.addTab(self.tab_all_genres, "Genres".rjust(75))
 
 
         self.music_list = self.list_widget(
