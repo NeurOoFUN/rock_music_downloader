@@ -8,7 +8,7 @@ __all__ = ['find_all_groups']
 music_manager_instance = MusicDbManager()
 
 
-def pagenation_count() -> int:
+def pagenation_count():
     response = session.get(url='https://rocknation.su/mp3/').text
     soup = BeautifulSoup(response, 'lxml')
     pagen_link = soup.find('ul', class_='pagination') \

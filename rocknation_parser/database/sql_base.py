@@ -31,14 +31,14 @@ class MusicDbManager:
             (group_name, group_link, genre)
             )
 
-    def show_all_groupnames(self) -> list:
+    def show_all_groupnames_or_genges(self, value: str) -> list[str] | set[str]:
         all_data = self._cursor.execute(
-            """
-            SELECT group_name FROM music
-            """
+            f"""SELECT {value} FROM music"""
         ).fetchall()
 
         names_list = [name for tpl in all_data for name in tpl]
+        if value == 'genre':
+            names_list = {name for tpl in all_data for name in tpl} 
 
         return names_list
 
@@ -50,4 +50,15 @@ class MusicDbManager:
             (choice_of_user,)
         ).fetchone()
         return user_selected_group[0]
+
+    def get_groups_of_selected_genre(self, *choice_of_user):
+        user_selected_group = self._cursor.execute(
+                """
+                SELECT group_name FROM music WHERE genre = ?
+                """,
+                (choice_of_user)
+                ).fetchall()
+        result = [group for i in user_selected_group for group in i]
+        # return user_selected_group
+        print(result)
 

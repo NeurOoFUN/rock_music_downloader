@@ -1,5 +1,5 @@
 import os
-from collections.abc import Callable
+from typing import Callable
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
@@ -25,11 +25,27 @@ class Ui_MainWindow(QMainWindow):
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
 
+        self.tabWidget = QtWidgets.QTabWidget(self)
+        self.tabWidget.setGeometry(QtCore.QRect(0, 0, 900, 715))
+        self.tabWidget.setObjectName("tabWidget")
+        self.tab_all_groups = QtWidgets.QWidget()
+        self.tab_all_groups.setObjectName("tab_all_groups")
+        self.tabWidget.addTab(self.tab_all_groups, "All groups")
+
+        self.tab_all_genres = QtWidgets.QWidget()
+        self.tab_all_genres.setObjectName('tab_all_genres')
+        self.tabWidget.addTab(self.tab_all_genres, "Genres")
+
+
         self.music_list = self.list_widget(
-                (0, 0, 900, 715), 'music_list',
-                    self.db_instance.show_all_groupnames(), self.parser_lounch
+                self.tab_all_groups, (0, 0, 900, 715), 'music_list',
+                    self.db_instance.show_all_groupnames_or_genges('group_name'), self.parser_lounch
                 )
 
+        self.genres_list = self.list_widget(
+                self.tab_all_genres, (0, 0, 900, 715), 'genres_list',
+                    self.db_instance.show_all_groupnames_or_genges('genre'), self.show_music_of_the_particularly_genre
+                )
         self.log_from_parser_module = self.log_label(
                 (10, 450, 881, 121), 'log_from_parser_module'
                 )
@@ -40,6 +56,10 @@ class Ui_MainWindow(QMainWindow):
                 (400, 610, 881, 51), 'completion_notice'
                 )
 
+    def show_music_of_the_particularly_genre(self, item):
+        selected_group = self.db_instance.get_groups_of_selected_genre(item.text())
+        return selected_group
+
     def parser_lounch(self, item):
         selected_group = self.db_instance.group_selection(item.text())
 
@@ -49,6 +69,7 @@ class Ui_MainWindow(QMainWindow):
         self.live_albums = self.msg_box('Do you need live albums?', self.user_answer)
 
         self.music_list.hide()
+        self.genres_list.hide()
         self.completion_notice.hide()
 
         self.log_from_writer_module.show()
@@ -63,18 +84,19 @@ class Ui_MainWindow(QMainWindow):
         self.completion_notice.setText(f'"{item.text()}" downloaded.')
 
         self.music_list.show()
+        self.genres_list.show()
         self.completion_notice.show()
 
     def user_answer(self, button):
         self.parser.user_answer = button.text()
 
     def list_widget(
-            self, geometry: tuple, objname: str, items: list, signal_handler: Callable
+            self, tab: QtWidgets.QTabWidget, geometry: tuple, objname: str, items: list | set, signal_handler: Callable[[str], None]
             ) -> QtWidgets.QListWidget:
         list_font = QtGui.QFont()
         list_font.setPointSize(15)
 
-        self.list = QtWidgets.QListWidget(self)
+        self.list = QtWidgets.QListWidget(tab)
         self.list.setGeometry(QtCore.QRect(*geometry))
         self.list.setObjectName(objname)
         self.list.setFont(list_font)
@@ -82,7 +104,7 @@ class Ui_MainWindow(QMainWindow):
         self.list.itemClicked.connect(signal_handler)
         return self.list
 
-    def msg_box(self, message: str, signal_handler: Callable):
+    def msg_box(self, message: str, signal_handler: Callable[[str], None]):
         msg_box = QMessageBox()
         msg_box.setWindowTitle(' ')
         msg_box.setText(message)
