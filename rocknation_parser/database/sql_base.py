@@ -36,9 +36,13 @@ class MusicDbManager:
             f"""SELECT {value} FROM music"""
         ).fetchall()
 
-        names_list = [name for tpl in all_data for name in tpl]
-        if value == 'genre':
-            names_list = {name for tpl in all_data for name in tpl} 
+        names_list = []
+
+        match value:
+            case 'group_name':
+                names_list = [name for tpl in all_data for name in tpl]
+            case 'genre':
+                names_list = {name for tpl in all_data for name in tpl}
 
         return names_list
 
@@ -58,7 +62,6 @@ class MusicDbManager:
                 """,
                 (choice_of_user)
                 ).fetchall()
-        result = [group for i in user_selected_group for group in i]
-        # return user_selected_group
-        print(result)
+        groups_of_chose_genre = [group for i in user_selected_group for group in i]
+        return groups_of_chose_genre
 
