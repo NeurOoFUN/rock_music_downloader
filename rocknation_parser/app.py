@@ -1,4 +1,5 @@
 import os
+import re
 from typing import Callable
 
 from PyQt5 import QtCore, QtWidgets, QtGui
@@ -25,36 +26,37 @@ class Ui_MainWindow(QMainWindow):
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
 
-        self.tabWidget = QtWidgets.QTabWidget(self)
-        self.tabWidget.setGeometry(QtCore.QRect(0, 0, 900, 715))
-        self.tabWidget.setObjectName("tabWidget")
-        self.tab_all_groups = QtWidgets.QWidget()
-        self.tab_all_groups.setObjectName("tab_all_groups")
-        self.tabWidget.addTab(self.tab_all_groups, "All groups".rjust(129))
-
-        self.tab_all_genres = QtWidgets.QWidget()
-        self.tab_all_genres.setObjectName('tab_all_genres')
-        self.tabWidget.addTab(self.tab_all_genres, "Genres".rjust(129))
-
-
-        self.music_list = self.list_widget_create(
-                self.tab_all_groups, (0, 0, 900, 690), 'music_list',
-                    self.db_instance.show_all_groupnames_or_genges('group_name'), self.parser_lounch
+        self.show_all_groups_button = self.push_button_create(
+                'show_all_groups_button', (-1, -4, 901, 361), 'Show all groups',
+                    70, self.show_all_groups_button_slot
+                )
+        self.show_genres_button = self.push_button_create(
+                'show_genres_button', (-1, 356, 900, 361), 'Show genres',
+                    70, self.show_genres_button_slot
                 )
 
-        self.genres_list = self.list_widget_create(
-                self.tab_all_genres, (0, 0, 900, 690), 'genres_list',
-                    self.db_instance.show_all_groupnames_or_genges('genre'), self.show_music_of_the_particularly_genre
-                )
         self.log_from_parser_module = self.log_label_create(
                 (10, 450, 881, 121), 'log_from_parser_module'
                 )
         self.log_from_writer_module = self.log_label_create(
                 (10, 610, 881, 51), 'log_from_writer_module'
                 )
-        self.completion_notice = self.log_label_create(
-                (400, 610, 881, 51), 'completion_notice'
+
+        self.music_list = self.list_widget_create(
+                (0, 0, 900, 715), 'music_list',
+                    self.db_instance.show_all_groupnames_or_genges('group_name'), self.parser_lounch
                 )
+        self.music_list.hide()
+        self.genres_list = self.list_widget_create(
+                (0, 0, 900, 715), 'genres_list',
+                    self.db_instance.show_all_groupnames_or_genges('genre'), self.show_music_of_the_particularly_genre
+                )
+        self.genres_list.hide()
+
+        self.back_button = self.push_button_create(
+                'back_button', (660, 610, 191, 71), '<<Back', 13, self.back_from_the_list
+                )
+        self.back_button.hide()
 
     def show_music_of_the_particularly_genre(self, item):
         """
@@ -62,27 +64,27 @@ class Ui_MainWindow(QMainWindow):
         This method is genres_list's slot.
         """
         self.music_by_genre_list = self.list_widget_create(
-                self.tab_all_genres, (0, 0, 900, 690), 'music_by_genre_list',
+                (0, 0, 900, 715), 'music_by_genre_list',
                 self.db_instance.get_groups_of_selected_genre(item.text()), self.parser_lounch
                 )
 
         self.music_by_genre_list.show()
-        self.back_button = self.push_button_create(
-                'back_button', '<<Back to genres', self.back_button_signal_handler
+        self.back_to_genre_button = self.push_button_create(
+                'back_to_genre_button', (660, 610, 191, 71), '<<Back to genres', 13, self.back_to_genre_button_slot
                 )
-        self.back_button.show()
+        self.back_to_genre_button.show()
 
     def parser_lounch(self, item):
+        self.back_button.hide()
         selected_group = self.db_instance.group_selection(item.text())
 
         if not os.path.exists(item.text()):
-            os.mkdir(item.text())
+            os.mkdir(re.sub(r'[\/:*?"<>|+.]', '_', item.text()))
+
 
         self.live_albums = self.msg_box_create('Do you need live albums?', self.user_answer)
 
         self.music_list.hide()
-        self.genres_list.hide()
-        self.completion_notice.hide()
 
         self.log_from_writer_module.show()
         self.log_from_parser_module.show()
@@ -93,15 +95,36 @@ class Ui_MainWindow(QMainWindow):
 
         self.log_from_writer_module.hide()
         self.log_from_parser_module.hide()
-        self.completion_notice.setText(f'"{item.text()}" downloaded.')
 
         self.music_list.show()
-        self.genres_list.show()
-        self.completion_notice.show()
+        self.back_button.show()
 
-    def back_button_signal_handler(self):
-        self.music_by_genre_list.hide()
+    def back_from_the_list(self):
+        self.music_list.hide()
+        self.genres_list.hide()
         self.back_button.hide()
+        self.show_all_groups_button.show()
+        self.show_genres_button.show()
+
+    def show_all_groups_button_slot(self):
+        self.music_list
+        self.show_all_groups_button.hide()
+        self.show_genres_button.hide()
+        self.music_list.show()
+        self.back_button
+        self.back_button.show()
+       
+    def show_genres_button_slot(self):
+        self.genres_list
+        self.show_genres_button.hide()
+        self.show_all_groups_button.hide()
+        self.genres_list.show()
+        self.back_button
+        self.back_button.show()
+
+    def back_to_genre_button_slot(self):
+        self.music_by_genre_list.hide()
+        self.back_to_genre_button.hide()
 
     def user_answer(self, button):
         """
@@ -111,15 +134,16 @@ class Ui_MainWindow(QMainWindow):
         self.parser.user_answer = button.text()
 
     def list_widget_create(
-            self, tab: QtWidgets.QTabWidget, geometry: tuple, objname: str, items: list | set, slot: Callable[[str], None]
+            self, geometry: tuple, objname: str, items: list | set, slot: Callable[[str], None]
             ) -> QtWidgets.QListWidget:
         list_font = QtGui.QFont()
-        list_font.setPointSize(13)
+        list_font.setPointSize(25)
 
-        self.list = QtWidgets.QListWidget(tab)
+        self.list = QtWidgets.QListWidget(self)
         self.list.setGeometry(QtCore.QRect(*geometry))
         self.list.setObjectName(objname)
         self.list.setFont(list_font)
+        self.list.setStyleSheet("color: rgb(0, 170, 0);")
         self.list.addItems(items)
         self.list.itemClicked.connect(slot)
         return self.list
@@ -145,15 +169,22 @@ class Ui_MainWindow(QMainWindow):
         self.log.setStyleSheet("color: rgb(0, 76, 0);")
         return self.log
 
-    def push_button_create(self, obj_name: str, text: str, slot: Callable[[], None]):
+    def push_button_create(self, obj_name: str, geometry: tuple, text: str, font_size: int, slot: Callable[[], None]):
         self.pushButton = QtWidgets.QPushButton(self)
-        self.pushButton.setGeometry(QtCore.QRect(660, 610, 191, 71))
-        self.pushButton.setStyleSheet("color: rgb(0, 255, 0);")
+        self.pushButton.setGeometry(QtCore.QRect(*geometry))
+        font = QtGui.QFont()
+        font.setPointSize(font_size)
+        font.setBold(True)
+        font.setItalic(False)
+        font.setUnderline(False)
+        font.setWeight(75)
+        font.setStrikeOut(False)
+        self.pushButton.setFont(font)
+        self.pushButton.setStyleSheet("color: rgb(0, 170, 0);")
         self.pushButton.setObjectName(obj_name)
         self.pushButton.setText(text)
         self.pushButton.clicked.connect(slot)
         return self.pushButton
-
 
 
 if __name__ == "__main__":

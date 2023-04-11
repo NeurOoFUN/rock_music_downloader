@@ -17,8 +17,9 @@ class Saver:
         Download and save all albums with .mp3 songs.
         """
         response = session.get(url=self.album_refs).text
-        # path of downloaded music
-        os.mkdir(os.path.normpath(f'{self.group_name}/{self.album_name}'))
+        filtered_group_name = re.sub(r'[\/:*?"<>|+.]', '_', self.group_name)
+        filtered_album_name = re.sub(r'[\/:*?"<>|+.]', '_', self.album_name)
+        os.mkdir(os.path.normpath(f'{filtered_group_name}/{filtered_album_name}'))
         # regex, parse links from JS.
         pattern_of_ref = re.findall(
             r'http://rocknation\.su/upload/mp3/.+?\.mp3',
