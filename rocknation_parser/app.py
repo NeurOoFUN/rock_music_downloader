@@ -1,4 +1,5 @@
 import os
+import os.path
 import re
 from typing import Callable
 
@@ -30,12 +31,10 @@ class Ui_MainWindow(QMainWindow):
                 'show_all_groups_button', (-1, -4, 901, 361), 'Show all groups',
                     70, self.show_all_groups_button_slot
                 )
-        # self.show_all_groups_button.show()
         self.show_genres_button = self.push_button_create(
                 'show_genres_button', (-1, 356, 900, 361), 'Show genres',
                     70, self.show_genres_button_slot
                 )
-        # self.show_genres_button.show()
 
         self.log_from_parser_module = self.log_label_create(
                 (10, 450, 881, 121), 'log_from_parser_module'
@@ -82,10 +81,12 @@ class Ui_MainWindow(QMainWindow):
         self.back_button.hide()
         self.pushButton.hide()
 
+        path_from_file_dialog = self.parser.path_for_music = self.file_dialog()
+
         selected_group = self.db_instance.group_selection(item.text())
 
         if not os.path.exists(item.text()):
-            os.mkdir(re.sub(r'[\/:*?"<>|+.]', '_', item.text()))
+            os.mkdir(os.path.normpath(f'{path_from_file_dialog}/{item.text()}'))
 
 
         self.live_albums = self.msg_box_create('Do you need live albums?', self.user_answer)
@@ -101,9 +102,6 @@ class Ui_MainWindow(QMainWindow):
 
         self.log_from_writer_module.hide()
         self.log_from_parser_module.hide()
-
-        # self.music_list.show()
-        # self.back_button.show()
 
         self.show_all_groups_button.show()
         self.show_genres_button.show()
@@ -197,6 +195,10 @@ class Ui_MainWindow(QMainWindow):
         self.pushButton.clicked.connect(slot)
         return self.pushButton
 
+    def file_dialog(self):
+        dialog_obj = QtWidgets.QFileDialog.getExistingDirectoryUrl()
+        path_for_music_recording = dialog_obj.path()
+        return path_for_music_recording
 
 if __name__ == "__main__":
     import sys
