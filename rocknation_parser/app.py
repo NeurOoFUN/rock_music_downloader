@@ -30,10 +30,12 @@ class Ui_MainWindow(QMainWindow):
                 'show_all_groups_button', (-1, -4, 901, 361), 'Show all groups',
                     70, self.show_all_groups_button_slot
                 )
+        # self.show_all_groups_button.show()
         self.show_genres_button = self.push_button_create(
                 'show_genres_button', (-1, 356, 900, 361), 'Show genres',
                     70, self.show_genres_button_slot
                 )
+        # self.show_genres_button.show()
 
         self.log_from_parser_module = self.log_label_create(
                 (10, 450, 881, 121), 'log_from_parser_module'
@@ -67,15 +69,19 @@ class Ui_MainWindow(QMainWindow):
                 (0, 0, 900, 715), 'music_by_genre_list',
                 self.db_instance.get_groups_of_selected_genre(item.text()), self.parser_lounch
                 )
-
         self.music_by_genre_list.show()
+
         self.back_to_genre_button = self.push_button_create(
                 'back_to_genre_button', (660, 610, 191, 71), '<<Back to genres', 13, self.back_to_genre_button_slot
                 )
         self.back_to_genre_button.show()
 
     def parser_lounch(self, item):
+        self.music_list.hide()
+        self.genres_list.hide()
         self.back_button.hide()
+        self.pushButton.hide()
+
         selected_group = self.db_instance.group_selection(item.text())
 
         if not os.path.exists(item.text()):
@@ -96,8 +102,11 @@ class Ui_MainWindow(QMainWindow):
         self.log_from_writer_module.hide()
         self.log_from_parser_module.hide()
 
-        self.music_list.show()
-        self.back_button.show()
+        # self.music_list.show()
+        # self.back_button.show()
+
+        self.show_all_groups_button.show()
+        self.show_genres_button.show()
 
     def back_from_the_list(self):
         self.music_list.hide()
@@ -107,7 +116,7 @@ class Ui_MainWindow(QMainWindow):
         self.show_genres_button.show()
 
     def show_all_groups_button_slot(self):
-        self.music_list
+        self.music_list.show()
         self.show_all_groups_button.hide()
         self.show_genres_button.hide()
         self.music_list.show()
@@ -115,7 +124,7 @@ class Ui_MainWindow(QMainWindow):
         self.back_button.show()
        
     def show_genres_button_slot(self):
-        self.genres_list
+        self.genres_list.show()
         self.show_genres_button.hide()
         self.show_all_groups_button.hide()
         self.genres_list.show()
@@ -157,6 +166,8 @@ class Ui_MainWindow(QMainWindow):
         msg_box.addButton(QMessageBox.No)
         msg_box.buttonClicked.connect(slot)
         msg_box.exec_()
+
+        self.list.hide()
 
     def log_label_create(self, geomettry: tuple, obj_name: str) -> QtWidgets.QLabel:
         font = QtGui.QFont()
