@@ -1,6 +1,7 @@
 import os
 import os.path
 import re
+import signal
 from typing import Callable
 
 from PyQt5 import QtCore, QtWidgets, QtGui
@@ -27,12 +28,16 @@ class Ui_MainWindow(QMainWindow):
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
 
+        self.setCentralWidget(self.centralwidget)
+
+        self.vbox = QtWidgets.QVBoxLayout(self.centralwidget)
+
         self.show_all_groups_button = self.push_button_create(
-                'show_all_groups_button', (-1, -4, 901, 361), 'Show all groups',
+                'show_all_groups_button', 'Show all groups',
                     70, self.show_all_groups_button_slot
                 )
         self.show_genres_button = self.push_button_create(
-                'show_genres_button', (-1, 356, 900, 361), 'Show genres',
+                'show_genres_button', 'Show genres',
                     70, self.show_genres_button_slot
                 )
 
@@ -55,9 +60,12 @@ class Ui_MainWindow(QMainWindow):
         self.genres_list.hide()
 
         self.back_button = self.push_button_create(
-                'back_button', (660, 610, 191, 71), '<<Back', 13, self.back_from_the_list
+                'back_button', '<<Back', 13, self.back_from_the_list
                 )
         self.back_button.hide()
+
+        self.vbox.addWidget(self.music_list)
+        self.vbox.addWidget(self.genres_list)
 
     def show_music_of_the_particularly_genre(self, item):
         """
@@ -68,10 +76,14 @@ class Ui_MainWindow(QMainWindow):
                 (0, 0, 900, 715), 'music_by_genre_list',
                 self.db_instance.get_groups_of_selected_genre(item.text()), self.parser_lounch
                 )
+
+        self.back_button.hide()
+        self.vbox.addWidget(self.music_by_genre_list)
         self.music_by_genre_list.show()
+        self.genres_list.hide()
 
         self.back_to_genre_button = self.push_button_create(
-                'back_to_genre_button', (660, 610, 191, 71), '<<Back to genres', 13, self.back_to_genre_button_slot
+                'back_to_genre_button', '<<Back to genres', 13, self.back_to_genre_button_slot
                 )
         self.back_to_genre_button.show()
 
@@ -113,6 +125,9 @@ class Ui_MainWindow(QMainWindow):
         self.show_all_groups_button.show()
         self.show_genres_button.show()
 
+    def exit_button_slot(self):
+        signal.SIGINT
+
     def show_all_groups_button_slot(self):
         self.music_list.show()
         self.show_all_groups_button.hide()
@@ -130,8 +145,10 @@ class Ui_MainWindow(QMainWindow):
         self.back_button.show()
 
     def back_to_genre_button_slot(self):
-        self.music_by_genre_list.hide()
         self.back_to_genre_button.hide()
+        self.music_by_genre_list.hide()
+        self.back_button.show()
+        self.genres_list.show()
 
     def user_answer(self, button):
         """
@@ -178,9 +195,8 @@ class Ui_MainWindow(QMainWindow):
         self.log.setStyleSheet("color: rgb(0, 76, 0);")
         return self.log
 
-    def push_button_create(self, obj_name: str, geometry: tuple, text: str, font_size: int, slot: Callable[[], None]):
+    def push_button_create(self, obj_name: str, text: str, font_size: int, slot: Callable[[], None]):
         self.pushButton = QtWidgets.QPushButton(self)
-        self.pushButton.setGeometry(QtCore.QRect(*geometry))
         font = QtGui.QFont()
         font.setPointSize(font_size)
         font.setBold(True)
@@ -193,6 +209,8 @@ class Ui_MainWindow(QMainWindow):
         self.pushButton.setObjectName(obj_name)
         self.pushButton.setText(text)
         self.pushButton.clicked.connect(slot)
+
+        self.vbox.addWidget(self.pushButton)
         return self.pushButton
 
     def file_dialog(self):
