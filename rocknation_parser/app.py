@@ -1,10 +1,9 @@
 import os
 import os.path
 import re
-import signal
 from typing import Callable
 
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5 import QtWidgets, QtGui
 from PyQt5.QtWidgets import QMainWindow, QMessageBox
 
 from database import MusicDbManager
@@ -20,7 +19,6 @@ class Ui_MainWindow(QMainWindow):
         super().__init__()
 
         self.setObjectName("MainWindow")
-        self.resize(900, 715)
 
         self.db_instance = MusicDbManager()
         self.parser = Parser()
@@ -34,28 +32,30 @@ class Ui_MainWindow(QMainWindow):
 
         self.show_all_groups_button = self.push_button_create(
                 'show_all_groups_button', 'Show all groups',
-                    70, self.show_all_groups_button_slot
+                70, self.show_all_groups_button_slot
                 )
         self.show_genres_button = self.push_button_create(
                 'show_genres_button', 'Show genres',
-                    70, self.show_genres_button_slot
+                70, self.show_genres_button_slot
                 )
 
         self.log_from_parser_module = self.log_label_create(
-                (10, 450, 881, 121), 'log_from_parser_module'
+                'log_from_parser_module'
                 )
+        self.log_from_parser_module.hide()
         self.log_from_writer_module = self.log_label_create(
-                (10, 610, 881, 51), 'log_from_writer_module'
+                'log_from_writer_module'
                 )
+        self.log_from_writer_module.hide()
 
         self.music_list = self.list_widget_create(
-                (0, 0, 900, 715), 'music_list',
-                    self.db_instance.show_all_groupnames_or_genges('group_name'), self.parser_lounch
+                'music_list', self.db_instance.show_all_groupnames_or_genges('group_name'),
+                self.parser_lounch
                 )
         self.music_list.hide()
         self.genres_list = self.list_widget_create(
-                (0, 0, 900, 715), 'genres_list',
-                    self.db_instance.show_all_groupnames_or_genges('genre'), self.show_music_of_the_particularly_genre
+                'genres_list', self.db_instance.show_all_groupnames_or_genges('genre'),
+                self.show_music_of_the_particularly_genre
                 )
         self.genres_list.hide()
 
@@ -64,17 +64,15 @@ class Ui_MainWindow(QMainWindow):
                 )
         self.back_button.hide()
 
-        self.vbox.addWidget(self.music_list)
-        self.vbox.addWidget(self.genres_list)
-
     def show_music_of_the_particularly_genre(self, item):
         """
 
         This method is genres_list's slot.
         """
         self.music_by_genre_list = self.list_widget_create(
-                (0, 0, 900, 715), 'music_by_genre_list',
-                self.db_instance.get_groups_of_selected_genre(item.text()), self.parser_lounch
+                'music_by_genre_list',
+                self.db_instance.get_groups_of_selected_genre(item.text()),
+                self.parser_lounch
                 )
 
         self.back_button.hide()
@@ -83,7 +81,8 @@ class Ui_MainWindow(QMainWindow):
         self.genres_list.hide()
 
         self.back_to_genre_button = self.push_button_create(
-                'back_to_genre_button', '<<Back to genres', 13, self.back_to_genre_button_slot
+                'back_to_genre_button', '<<Back to genres',
+                13, self.back_to_genre_button_slot
                 )
         self.back_to_genre_button.show()
 
@@ -97,8 +96,10 @@ class Ui_MainWindow(QMainWindow):
 
         selected_group = self.db_instance.group_selection(item.text())
 
+        filtered_group_name = re.sub(r'[><:"/\|?*]', '_', item.text())
+
         if not os.path.exists(item.text()):
-            os.mkdir(os.path.normpath(f'{path_from_file_dialog}/{item.text()}'))
+            os.mkdir(os.path.normpath(f'{path_from_file_dialog}/{filtered_group_name}'))
 
 
         self.live_albums = self.msg_box_create('Do you need live albums?', self.user_answer)
@@ -124,9 +125,6 @@ class Ui_MainWindow(QMainWindow):
         self.back_button.hide()
         self.show_all_groups_button.show()
         self.show_genres_button.show()
-
-    def exit_button_slot(self):
-        signal.SIGINT
 
     def show_all_groups_button_slot(self):
         self.music_list.show()
@@ -158,18 +156,19 @@ class Ui_MainWindow(QMainWindow):
         self.parser.user_answer = button.text()
 
     def list_widget_create(
-            self, geometry: tuple, objname: str, items: list | set, slot: Callable[[str], None]
+            self, objname: str, items: list | set, slot: Callable[[str], None]
             ) -> QtWidgets.QListWidget:
         list_font = QtGui.QFont()
-        list_font.setPointSize(25)
+        list_font.setPointSize(15)
 
         self.list = QtWidgets.QListWidget(self)
-        self.list.setGeometry(QtCore.QRect(*geometry))
         self.list.setObjectName(objname)
         self.list.setFont(list_font)
         self.list.setStyleSheet("color: rgb(0, 170, 0);")
         self.list.addItems(items)
         self.list.itemClicked.connect(slot)
+
+        self.vbox.addWidget(self.list)
         return self.list
 
     def msg_box_create(self, message: str, slot: Callable[[str], None]):
@@ -184,15 +183,16 @@ class Ui_MainWindow(QMainWindow):
 
         self.list.hide()
 
-    def log_label_create(self, geomettry: tuple, obj_name: str) -> QtWidgets.QLabel:
+    def log_label_create(self, obj_name: str) -> QtWidgets.QLabel:
         font = QtGui.QFont()
-        font.setPointSize(30)
+        font.setPointSize(15)
         
         self.log = QtWidgets.QLabel(self)
-        self.log.setGeometry(QtCore.QRect(*geomettry))
         self.log.setObjectName(obj_name)
         self.log.setFont(font)
         self.log.setStyleSheet("color: rgb(0, 76, 0);")
+
+        self.vbox.addWidget(self.log)
         return self.log
 
     def push_button_create(self, obj_name: str, text: str, font_size: int, slot: Callable[[], None]):
@@ -202,7 +202,7 @@ class Ui_MainWindow(QMainWindow):
         font.setBold(True)
         font.setItalic(False)
         font.setUnderline(False)
-        font.setWeight(75)
+        font.setWeight(70)
         font.setStrikeOut(False)
         self.pushButton.setFont(font)
         self.pushButton.setStyleSheet("color: rgb(0, 170, 0);")

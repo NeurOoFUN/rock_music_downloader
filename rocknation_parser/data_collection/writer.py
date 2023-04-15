@@ -19,8 +19,8 @@ class Saver:
         Download and save all albums with .mp3 songs.
         """
         response = session.get(url=self.album_refs).text
-        filtered_group_name = re.sub(r'[\/:*?"<>|+.]', '_', self.group_name)
-        filtered_album_name = re.sub(r'[\/:*?"<>|+.]', '_', self.album_name)
+        filtered_group_name = re.sub(r'[><:"/\|?*]', '_', self.group_name)
+        filtered_album_name = re.sub(r'[><:"/\|?*]', '_', self.album_name)
         os.mkdir(os.path.normpath(f'{self.path_for_music}/{filtered_group_name}/{filtered_album_name}'))
         # regex, parse links from JS.
         pattern_of_ref = re.findall(
@@ -44,8 +44,8 @@ class Saver:
             song_count += 1
 
     def music_recording(self, download, song_count, pattern_of_ref,
-                            song_name, log_from_writer_module,
-                                filtered_group_name, filtered_album_name) -> None:
+                        song_name, log_from_writer_module,
+                        filtered_group_name, filtered_album_name) -> None:
             music_path = os.path.normcase(
                 f'{self.path_for_music}/{filtered_group_name}/{filtered_album_name}/{song_count}. {song_name}.mp3'
             )
