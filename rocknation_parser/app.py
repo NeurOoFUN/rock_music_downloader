@@ -92,14 +92,14 @@ class Ui_MainWindow(QMainWindow):
         self.back_button.hide()
         self.pushButton.hide()
 
-        path_from_file_dialog = self.parser.path_for_music = self.file_dialog()
+        self.parser.path_for_music = self.file_dialog()
 
         selected_group = self.db_instance.group_selection(item.text())
 
         filtered_group_name = re.sub(r'[><:"/\|?*]', '_', item.text())
 
         if not os.path.exists(item.text()):
-            os.mkdir(os.path.normpath(f'{path_from_file_dialog}/{filtered_group_name}'))
+            os.mkdir(os.path.normpath(f'{self.parser.path_for_music}/{filtered_group_name}'))
 
 
         self.live_albums = self.msg_box_create('Do you need live albums?', self.user_answer)
@@ -214,8 +214,7 @@ class Ui_MainWindow(QMainWindow):
         return self.pushButton
 
     def file_dialog(self):
-        dialog_obj = QtWidgets.QFileDialog.getExistingDirectoryUrl()
-        path_for_music_recording = dialog_obj.path()
+        path_for_music_recording = QtWidgets.QFileDialog.getExistingDirectory()
         return path_for_music_recording
 
 if __name__ == "__main__":
