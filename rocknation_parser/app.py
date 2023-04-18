@@ -92,11 +92,12 @@ class Ui_MainWindow(QMainWindow):
         self.back_button.hide()
         self.pushButton.hide()
 
-        self.parser.path_for_music = self.file_dialog()
+        self.parser.path_for_music = self.file_dialog().strip()
 
         selected_group = self.db_instance.group_selection(item.text())
+        self.parser.link_to_selected_group = selected_group
 
-        filtered_group_name = re.sub(r'[><:"/\|?*]', '_', item.text())
+        filtered_group_name = self.parser.group_name = re.sub(r'[><:"/\|?* ]', '_', item.text())
 
         if not os.path.exists(item.text()):
             os.mkdir(os.path.normpath(f'{self.parser.path_for_music}/{filtered_group_name}'))
@@ -109,8 +110,6 @@ class Ui_MainWindow(QMainWindow):
         self.log_from_writer_module.show()
         self.log_from_parser_module.show()
 
-        self.parser.link_to_selected_group = selected_group
-        self.parser.group_name = item.text()
         self.parser.parse(self.log_from_parser_module, self.log_from_writer_module)
 
         self.log_from_writer_module.hide()

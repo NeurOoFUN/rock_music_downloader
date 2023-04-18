@@ -35,7 +35,6 @@ class Parser(Saver):
             for li in album_data:
                 self.album_refs = 'http://rocknation.su' + li.find('a').get('href')
                 self.album_name = li.get_text()
-                print(self.album_name)
 
                 if self.user_answer == '&No' and re.search(r'(?i)\blive\b', self.album_name):
                     continue
@@ -48,9 +47,6 @@ class Parser(Saver):
                 QtWidgets.QApplication.processEvents()
 
                 album_number += 1
-
-                self.album_refs, self.album_name, self.group_name = \
-                    self.album_refs, self.album_name, self.group_name
 
                 try:
                     self.download_songs(log_from_writer_module)
