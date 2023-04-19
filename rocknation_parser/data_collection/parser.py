@@ -21,7 +21,8 @@ class Parser(Saver):
         self.link_to_selected_group = str()
         self.user_answer = str()
 
-    def parse(self, log_from_parser_module, log_from_writer_module):
+    def parse(self, log_from_parser_module: QtWidgets.QLabel,
+              log_from_writer_module: QtWidgets.QLabel) -> None:
         for self.page_count in range(1, 10):  # pagenation.
             album_number = 1
             response = session.get(

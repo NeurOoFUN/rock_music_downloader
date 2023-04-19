@@ -12,7 +12,7 @@ class MusicDbManager:
         self._connect.commit()
         self._connect.close()
 
-    def create_db(self):
+    def create_db(self) -> None:
         create_table = """
             CREATE TABLE IF NOT EXISTS music(
                 id INTEGER PRIMARY KEY,
@@ -23,7 +23,7 @@ class MusicDbManager:
         """
         self._cursor.execute(create_table)
 
-    def write_all_data_to_db(self, group_name: str, group_link: str, genre: str):
+    def write_all_data_to_db(self, group_name: str, group_link: str, genre: str) -> None:
         self._cursor.execute(
             """INSERT INTO music(group_name, group_link, genre)
                VALUES(?, ?, ?)
@@ -44,7 +44,7 @@ class MusicDbManager:
             case 'genre':
                 names_list = {name for tpl in all_data for name in tpl}
 
-        return names_list
+        return sorted(list(names_list))
 
     def group_selection(self, choice_of_user: str) -> str:
         user_selected_group = self._cursor.execute(
@@ -55,7 +55,7 @@ class MusicDbManager:
         ).fetchone()
         return user_selected_group[0]
 
-    def get_groups_of_selected_genre(self, *choice_of_user):
+    def get_groups_of_selected_genre(self, *choice_of_user: str) -> list:
         user_selected_group = self._cursor.execute(
                 """
                 SELECT group_name FROM music WHERE genre = ?

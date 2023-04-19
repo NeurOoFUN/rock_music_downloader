@@ -14,14 +14,19 @@ class Saver:
 
         self.path_for_music = str()
 
-    def download_songs(self, log_from_writer_module):
+    def download_songs(self, log_from_writer_module: QtWidgets.QLabel):
         """
         Download and save all albums with .mp3 songs.
         """
         response = session.get(url=self.album_refs).text
-        filtered_group_name = re.sub(r'[><:"/\|?*]', '_', self.group_name).strip()
-        filtered_album_name = re.sub(r'[><:"/\|?*]', '_', self.album_name)
-        os.mkdir(os.path.normpath(f'{self.path_for_music}/{filtered_group_name}/{filtered_album_name}'))
+        filtered_group_name = self.record_path_filter(self.group_name)
+        filtered_album_name = self.record_path_filter(self.album_name)
+        # os.mkdir(os.path.normpath(f'{self.path_for_music}/{filtered_group_name}/{filtered_album_name}'))
+        os.mkdir(
+                os.path.normpath(
+                    f'{self.path_for_music}/{filtered_group_name}/{filtered_album_name}'
+                    )
+                )
         # regex, parse links from JS.
         pattern_of_ref = re.findall(
             r'http://rocknation\.su/upload/mp3/.+?\.mp3',
@@ -36,16 +41,19 @@ class Saver:
             # Cleaning the name of the song.
             song_name = re.sub(r'[\d %]', r'', pattern_of_name)
 
-            self.music_recording(download,
-                                 song_count, pattern_of_ref, song_name,
-                                 log_from_writer_module, filtered_group_name,
-                                 filtered_album_name
-                                 )
+            self.music_recording(download, song_count, pattern_of_ref,
+                                 song_name, log_from_writer_module,
+                                 filtered_group_name, filtered_album_name)
             song_count += 1
 
-    def music_recording(self, download, song_count, pattern_of_ref,
-                        song_name, log_from_writer_module,
-                        filtered_group_name, filtered_album_name) -> None:
+    @staticmethod
+    def record_path_filter(piese_of_path: str) -> str:
+        filtered_piese_of_path = re.sub(r'[><:"/\|?*]', '_', piese_of_path).strip()
+        return filtered_piese_of_path
+
+    def music_recording(self, download, song_count: int, pattern_of_ref: list,
+                        song_name: str, log_from_writer_module: QtWidgets.QLabel,
+                        filtered_group_name: str, filtered_album_name: str) -> None:
             music_path = os.path.normcase(
                 f'{self.path_for_music}/{filtered_group_name}/{filtered_album_name}/{song_count}. {song_name}.mp3'
             )
