@@ -23,7 +23,8 @@ class Parser(Saver):
 
     def parse(self, log_from_parser_module: QtWidgets.QLabel,
               log_from_writer_module: QtWidgets.QLabel, 
-              step_for_albumpb, step_for_songpb) -> None:
+              step_for_albumpb: QtWidgets.QProgressBar,
+              step_for_songpb: QtWidgets.QProgressBar) -> None:
         for self.page_count in range(1, 10):  # pagenation.
             album_number = 1
             response = session.get(
@@ -60,5 +61,7 @@ class Parser(Saver):
                     step += 100 / len(album_data)
 
                 except FileExistsError:
-                    print('We have this album, next...')
+                    log_from_writer_module.setText('We have this album, next...')
+                    step_for_albumpb.setProperty("value", step)
+                    step += 100 / len(album_data)
 

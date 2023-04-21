@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QMainWindow, QMessageBox
 
 from database import MusicDbManager
 from data_collection import Parser
+import app_images_rc
 
 
 class Ui_MainWindow(QMainWindow):
@@ -25,29 +26,32 @@ class Ui_MainWindow(QMainWindow):
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.setCentralWidget(self.centralwidget)
+        self.setStyleSheet("border-image: url(images/metall.jpg);")
 
         self.vbox = QtWidgets.QVBoxLayout(self.centralwidget)
 
         self.show_all_groups_button = self.push_button_create(
                 'show_all_groups_button', 'Show all groups',
-                70, self.show_all_groups_button_slot
+                50, self.show_all_groups_button_slot
                 )
 
         self.show_genres_button = self.push_button_create(
                 'show_genres_button', 'Show genres',
-                70, self.show_genres_button_slot
+                50, self.show_genres_button_slot
                 )
 
-
+        self.start_notice = self.log_label_create('start_notice', 30)
+        self.start_notice.setText("Downloading...\nHold on several minutes.")
+        self.start_notice.hide()
         self.log_from_parser_module = self.log_label_create(
-                'log_from_parser_module'
+                'log_from_parser_module', 15
                 )
         self.log_from_parser_module.hide()
         self.albums_pbar = self.create_progress_bar('albums_pbar')
         self.albums_pbar.hide()
 
         self.log_from_writer_module = self.log_label_create(
-                'log_from_writer_module'
+                'log_from_writer_module', 15
                 )
         self.log_from_writer_module.hide()
         self.songs_pbar = self.create_progress_bar('songs_pbar')
@@ -69,16 +73,11 @@ class Ui_MainWindow(QMainWindow):
                 )
         self.back_button.hide()
 
-        # self.albums_pbar = self.create_progress_bar('albums_pbar')
-        # self.albums_pbar.hide()
-        # self.songs_pbar = self.create_progress_bar('songs_pbar')
-        # self.songs_pbar.hide()
-
     def parser_lounch(self, item) -> None:
         self.music_list.hide()
         self.genres_list.hide()
         self.back_button.hide()
-        self.pushButton.hide()
+        # self.pushButton.hide()
 
         self.parser.path_for_music = self.file_dialog().strip()
 
@@ -97,6 +96,7 @@ class Ui_MainWindow(QMainWindow):
 
         self.log_from_writer_module.show()
         self.log_from_parser_module.show()
+        self.start_notice.show()
 
         self.albums_pbar.show()
         self.songs_pbar.show()
@@ -105,6 +105,7 @@ class Ui_MainWindow(QMainWindow):
 
         self.log_from_writer_module.hide()
         self.log_from_parser_module.hide()
+        self.start_notice.hide()
 
         self.show_all_groups_button.show()
         self.show_genres_button.show()
@@ -195,7 +196,7 @@ class Ui_MainWindow(QMainWindow):
         self.list = QtWidgets.QListWidget(self)
         self.list.setObjectName(objname)
         self.list.setFont(list_font)
-        self.list.setStyleSheet("color: rgb(0, 170, 0);")
+        self.list.setStyleSheet("color: rgb(39, 39, 39);")
         self.list.addItems(items)
         self.list.itemClicked.connect(slot)
 
@@ -214,14 +215,14 @@ class Ui_MainWindow(QMainWindow):
 
         self.list.hide()
 
-    def log_label_create(self, obj_name: str) -> QtWidgets.QLabel:
+    def log_label_create(self, obj_name: str, font_size: int) -> QtWidgets.QLabel:
         font = QtGui.QFont()
-        font.setPointSize(15)
+        font.setPointSize(font_size)
         
         self.log = QtWidgets.QLabel(self)
         self.log.setObjectName(obj_name)
         self.log.setFont(font)
-        self.log.setStyleSheet("color: rgb(0, 76, 0);")
+        self.log.setStyleSheet("color: rgb(39, 39, 39);")
 
         self.vbox.addWidget(self.log)
         return self.log
@@ -238,7 +239,7 @@ class Ui_MainWindow(QMainWindow):
         font.setWeight(70)
         font.setStrikeOut(False)
         self.pushButton.setFont(font)
-        self.pushButton.setStyleSheet("color: rgb(0, 170, 0);")
+        self.pushButton.setStyleSheet("color: rgb(39, 39, 39);")
         self.pushButton.setObjectName(obj_name)
         self.pushButton.setText(text)
         self.pushButton.clicked.connect(slot)
