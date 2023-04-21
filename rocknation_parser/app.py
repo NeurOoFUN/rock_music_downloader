@@ -72,6 +72,11 @@ class Ui_MainWindow(QMainWindow):
                 'back_button', '<<Back', 13, self.back_button_slot
                 )
         self.back_button.hide()
+        self.back_to_genre_button = self.push_button_create(
+                'back_to_genre_button', '<<Back to genres',
+                13, self.back_to_genre_button_slot
+                )
+        self.back_to_genre_button.hide()
 
     def parser_lounch(self, item) -> None:
         self.music_list.hide()
@@ -129,10 +134,10 @@ class Ui_MainWindow(QMainWindow):
         self.music_by_genre_list.show()
         self.genres_list.hide()
 
-        self.back_to_genre_button = self.push_button_create(
-                'back_to_genre_button', '<<Back to genres',
-                13, self.back_to_genre_button_slot
-                )
+        # self.back_to_genre_button = self.push_button_create(
+                # 'back_to_genre_button', '<<Back to genres',
+                # 13, self.back_to_genre_button_slot
+                # )
         self.back_to_genre_button.show()
 
     def file_dialog(self) -> str:
