@@ -14,7 +14,8 @@ class Saver:
 
         self.path_for_music = str()
 
-    def download_songs(self, log_from_writer_module: QtWidgets.QLabel):
+    def download_songs(self, log_from_writer_module: QtWidgets.QLabel,
+                       step_for_songpb):
         """
         Download and save all albums with .mp3 songs.
         """
@@ -33,6 +34,7 @@ class Saver:
             response
         )
         song_count = 1
+        step = 100 / len(pattern_of_ref)
         # download songs.
         for i in pattern_of_ref:
             download = session.get(url=i).content
@@ -44,6 +46,8 @@ class Saver:
             self.music_recording(download, song_count, pattern_of_ref,
                                  song_name, log_from_writer_module,
                                  filtered_group_name, filtered_album_name)
+            step_for_songpb.setProperty("value", step)
+            step += 100 / len(pattern_of_ref)
             song_count += 1
 
     @staticmethod

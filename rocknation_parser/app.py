@@ -28,29 +28,30 @@ class Ui_MainWindow(QMainWindow):
 
         self.vbox = QtWidgets.QVBoxLayout(self.centralwidget)
 
-        # self.progressBar = QtWidgets.QProgressBar(self)
-        # self.progressBar.setProperty("value", 0)
-        # self.progressBar.setObjectName("progressBar")
-        # self.progressBar.show()
-        # self.vbox.addWidget(self.progressBar)
-
         self.show_all_groups_button = self.push_button_create(
                 'show_all_groups_button', 'Show all groups',
                 70, self.show_all_groups_button_slot
                 )
+
         self.show_genres_button = self.push_button_create(
                 'show_genres_button', 'Show genres',
                 70, self.show_genres_button_slot
                 )
 
+
         self.log_from_parser_module = self.log_label_create(
                 'log_from_parser_module'
                 )
         self.log_from_parser_module.hide()
+        self.albums_pbar = self.create_progress_bar('albums_pbar')
+        self.albums_pbar.hide()
+
         self.log_from_writer_module = self.log_label_create(
                 'log_from_writer_module'
                 )
         self.log_from_writer_module.hide()
+        self.songs_pbar = self.create_progress_bar('songs_pbar')
+        self.songs_pbar.hide()
 
         self.music_list = self.list_widget_create(
                 'music_list', self.db_instance.show_all_groupnames_or_genges('group_name'),
@@ -67,6 +68,11 @@ class Ui_MainWindow(QMainWindow):
                 'back_button', '<<Back', 13, self.back_button_slot
                 )
         self.back_button.hide()
+
+        # self.albums_pbar = self.create_progress_bar('albums_pbar')
+        # self.albums_pbar.hide()
+        # self.songs_pbar = self.create_progress_bar('songs_pbar')
+        # self.songs_pbar.hide()
 
     def parser_lounch(self, item) -> None:
         self.music_list.hide()
@@ -92,13 +98,19 @@ class Ui_MainWindow(QMainWindow):
         self.log_from_writer_module.show()
         self.log_from_parser_module.show()
 
-        self.parser.parse(self.log_from_parser_module, self.log_from_writer_module)
+        self.albums_pbar.show()
+        self.songs_pbar.show()
+
+        self.parser.parse(self.log_from_parser_module, self.log_from_writer_module, self.albums_pbar, self.songs_pbar)
 
         self.log_from_writer_module.hide()
         self.log_from_parser_module.hide()
 
         self.show_all_groups_button.show()
         self.show_genres_button.show()
+
+        self.albums_pbar.hide()
+        self.songs_pbar.hide()
 
     def show_music_of_the_selected_genre(self, item) -> None:
         """
@@ -165,6 +177,14 @@ class Ui_MainWindow(QMainWindow):
         This method is live_albums's slot.
         """
         self.parser.user_answer = button.text()
+
+    def create_progress_bar(self, obj_name: str, step: int = 0):
+        self.progressBar = QtWidgets.QProgressBar(self)
+        self.progressBar.setProperty("value", step)
+        self.progressBar.setObjectName(obj_name)
+        self.vbox.addWidget(self.progressBar)
+        return self.progressBar
+
 
     def list_widget_create(
             self, objname: str, items: list | set,

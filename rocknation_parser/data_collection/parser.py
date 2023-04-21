@@ -22,7 +22,8 @@ class Parser(Saver):
         self.user_answer = str()
 
     def parse(self, log_from_parser_module: QtWidgets.QLabel,
-              log_from_writer_module: QtWidgets.QLabel) -> None:
+              log_from_writer_module: QtWidgets.QLabel, 
+              step_for_albumpb, step_for_songpb) -> None:
         for self.page_count in range(1, 10):  # pagenation.
             album_number = 1
             response = session.get(
@@ -32,6 +33,10 @@ class Parser(Saver):
             soup = BeautifulSoup(response.text, 'lxml')
             # 'li' tags with album links, and album names.
             album_data = soup.find('div', id='clips').find('ol', class_='list').find_all('li')
+            try:
+                step = 100 / len(album_data)
+            except ZeroDivisionError:
+                return
 
             for li in album_data:
                 self.album_refs = 'http://rocknation.su' + li.find('a').get('href')
@@ -50,7 +55,9 @@ class Parser(Saver):
                 album_number += 1
 
                 try:
-                    self.download_songs(log_from_writer_module)
+                    self.download_songs(log_from_writer_module, step_for_songpb)
+                    step_for_albumpb.setProperty("value", step)
+                    step += 100 / len(album_data)
 
                 except FileExistsError:
                     print('We have this album, next...')
