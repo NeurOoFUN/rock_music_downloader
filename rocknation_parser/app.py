@@ -1,5 +1,4 @@
 import os
-import os.path
 import re
 from typing import Callable
 
@@ -20,28 +19,27 @@ class Ui_MainWindow(QMainWindow):
         super().__init__()
 
         self.setObjectName("MainWindow")
-        self.db_instance = MusicDbManager()
-        self.parser = Parser()
-
         self.centralwidget = QtWidgets.QWidget(self)
         self.centralwidget.setObjectName("centralwidget")
         self.setCentralWidget(self.centralwidget)
         self.setStyleSheet("border-image: url(images/metall.jpg);")
 
+        self.db_instance = MusicDbManager()
+        self.parser = Parser()
+
         self.vbox = QtWidgets.QVBoxLayout(self.centralwidget)
 
         self.show_all_groups_button = self.push_button_create(
                 'show_all_groups_button', 'Show all groups',
-                50, self.show_all_groups_button_slot
+                70, self.show_all_groups_button_slot
                 )
 
         self.show_genres_button = self.push_button_create(
                 'show_genres_button', 'Show genres',
-                50, self.show_genres_button_slot
+                70, self.show_genres_button_slot
                 )
 
         self.start_notice = self.log_label_create('start_notice', 30)
-        self.start_notice.setText("Downloading...\nHold on several minutes.")
         self.start_notice.hide()
         self.log_from_parser_module = self.log_label_create(
                 'log_from_parser_module', 15
@@ -82,7 +80,7 @@ class Ui_MainWindow(QMainWindow):
         self.music_list.hide()
         self.genres_list.hide()
         self.back_button.hide()
-        # self.pushButton.hide()
+        self.back_to_genre_button.hide()
 
         self.parser.path_for_music = self.file_dialog().strip()
 
@@ -91,8 +89,8 @@ class Ui_MainWindow(QMainWindow):
 
         filtered_group_name = self.parser.group_name = re.sub(r'[><:"/\|?*]', '_', item.text()).strip()
 
-        if not os.path.exists(os.path.normpath(f'{self.parser.path_for_music}/{filtered_group_name}')):
-            os.mkdir(os.path.normpath(f'{self.parser.path_for_music}/{filtered_group_name}'))
+        if not os.path.exists(os.path.normpath(os.path.join(self.parser.path_for_music, filtered_group_name))):
+            os.mkdir(os.path.normpath(os.path.join(self.parser.path_for_music, filtered_group_name)))
 
 
         self.live_albums = self.msg_box_create('Do you need live albums?', self.user_answer)
@@ -101,6 +99,7 @@ class Ui_MainWindow(QMainWindow):
 
         self.log_from_writer_module.show()
         self.log_from_parser_module.show()
+        self.start_notice.setText(f'{filtered_group_name}\nis downloading...')
         self.start_notice.show()
 
         self.albums_pbar.show()
@@ -133,11 +132,6 @@ class Ui_MainWindow(QMainWindow):
         self.vbox.addWidget(self.music_by_genre_list)
         self.music_by_genre_list.show()
         self.genres_list.hide()
-
-        # self.back_to_genre_button = self.push_button_create(
-                # 'back_to_genre_button', '<<Back to genres',
-                # 13, self.back_to_genre_button_slot
-                # )
         self.back_to_genre_button.show()
 
     def file_dialog(self) -> str:

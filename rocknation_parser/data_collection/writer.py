@@ -22,10 +22,9 @@ class Saver:
         response = session.get(url=self.album_refs).text
         filtered_group_name = self.record_path_filter(self.group_name)
         filtered_album_name = self.record_path_filter(self.album_name)
-        # os.mkdir(os.path.normpath(f'{self.path_for_music}/{filtered_group_name}/{filtered_album_name}'))
         os.mkdir(
                 os.path.normpath(
-                    f'{self.path_for_music}/{filtered_group_name}/{filtered_album_name}'
+                    os.path.join(self.path_for_music, filtered_group_name, filtered_album_name)
                     )
                 )
         # regex, parse links from JS.
@@ -58,8 +57,8 @@ class Saver:
     def music_recording(self, download, song_count: int, pattern_of_ref: list,
                         song_name: str, log_from_writer_module: QtWidgets.QLabel,
                         filtered_group_name: str, filtered_album_name: str) -> None:
-            music_path = os.path.normcase(
-                f'{self.path_for_music}/{filtered_group_name}/{filtered_album_name}/{song_count}. {song_name}.mp3'
+            music_path = os.path.normpath(
+                os.path.join(self.path_for_music, filtered_group_name, filtered_album_name, f'{song_count}. {song_name}.mp3')
             )
             # with open(music_path, 'wb') as file:
                 # file.write(download)
