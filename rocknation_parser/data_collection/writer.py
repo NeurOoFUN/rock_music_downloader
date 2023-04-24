@@ -23,10 +23,10 @@ class Saver:
         filtered_group_name = self.record_path_filter(self.group_name)
         filtered_album_name = self.record_path_filter(self.album_name)
         os.mkdir(
-                os.path.normpath(
-                    os.path.join(self.path_for_music, filtered_group_name, filtered_album_name)
-                    )
+            os.path.normpath(
+                os.path.join(self.path_for_music, filtered_group_name, filtered_album_name)
                 )
+            )
         # regex, parse links from JS.
         pattern_of_ref = re.findall(
             r'http://rocknation\.su/upload/mp3/.+?\.mp3',

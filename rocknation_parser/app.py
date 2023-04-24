@@ -77,10 +77,9 @@ class Ui_MainWindow(QMainWindow):
         self.back_to_genre_button.hide()
 
     def parser_lounch(self, item) -> None:
-        self.music_list.hide()
-        self.genres_list.hide()
         self.back_button.hide()
         self.back_to_genre_button.hide()
+        self.list.hide()
 
         self.parser.path_for_music = self.file_dialog().strip()
 
@@ -89,11 +88,14 @@ class Ui_MainWindow(QMainWindow):
 
         filtered_group_name = self.parser.group_name = re.sub(r'[><:"/\|?*]', '_', item.text()).strip()
 
-        if not os.path.exists(os.path.normpath(os.path.join(self.parser.path_for_music, filtered_group_name))):
-            os.mkdir(os.path.normpath(os.path.join(self.parser.path_for_music, filtered_group_name)))
+        full_path = os.path.normpath(os.path.join(self.parser.path_for_music, filtered_group_name))
+        if not os.path.exists(full_path):
+            os.mkdir(full_path)
 
-
-        self.live_albums = self.msg_box_create('Do you need live albums?', self.user_answer)
+        self.live_albums = self.msg_box_create(
+                'Do you need live albums?', (QMessageBox.Yes, QMessageBox.No),
+                self.user_answer
+                )
 
         self.music_list.hide()
 
@@ -116,6 +118,10 @@ class Ui_MainWindow(QMainWindow):
 
         self.albums_pbar.hide()
         self.songs_pbar.hide()
+
+        self.completion_notice = self.msg_box_create(
+                f'Downloading is complete.\nMusic is here:\n{full_path}', (QMessageBox.Ok,)
+                )
 
     def show_music_of_the_selected_genre(self, item) -> None:
         """
@@ -185,7 +191,6 @@ class Ui_MainWindow(QMainWindow):
         self.vbox.addWidget(self.progressBar)
         return self.progressBar
 
-
     def list_widget_create(
             self, objname: str, items: list | set,
             slot: Callable[[str], None]) -> QtWidgets.QListWidget:
@@ -202,17 +207,21 @@ class Ui_MainWindow(QMainWindow):
         self.vbox.addWidget(self.list)
         return self.list
 
-    def msg_box_create(self, message: str, slot: Callable[[str], None]) -> None:
+    def msg_box_create(self, message: str, buttons: tuple, slot: Callable[[str], None] | None=None) -> None:
         msg_box = QMessageBox()
-        msg_box.setWindowTitle(' ')
+        msg_box.setWindowTitle('Notification')
         msg_box.setText(message)
         msg_box.setIcon(QMessageBox.Information)
-        msg_box.addButton(QMessageBox.Yes)
-        msg_box.addButton(QMessageBox.No)
-        msg_box.buttonClicked.connect(slot)
-        msg_box.exec_()
+        if len(buttons) > 1:
+            for button in buttons:
+                msg_box.addButton(button)
+        else:
+            msg_box.addButton(buttons[0])
 
-        self.list.hide()
+        if slot:
+            msg_box.buttonClicked.connect(slot)
+
+        msg_box.exec_()
 
     def log_label_create(self, obj_name: str, font_size: int) -> QtWidgets.QLabel:
         font = QtGui.QFont()
