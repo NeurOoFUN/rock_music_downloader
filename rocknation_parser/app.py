@@ -56,15 +56,23 @@ class Ui_MainWindow(QMainWindow):
         self.songs_pbar.hide()
 
         self.music_list = self.list_widget_create(
-                'music_list', self.db_instance.show_all_groupnames_or_genges('group_name'),
-                self.parser_lounch
+                'music_list', self.parser_lounch
                 )
+        self.music_list.addItems(self.db_instance.show_all_groupnames_or_genges('group_name'))
+        self.search_bar = self.search_bar_create()
+        self.search_bar.hide()
         self.music_list.hide()
+
         self.genres_list = self.list_widget_create(
-                'genres_list', self.db_instance.show_all_groupnames_or_genges('genre'),
-                self.show_music_of_the_selected_genre
+                'genres_list', self.show_music_of_the_selected_genre
                 )
+        self.genres_list.addItems(self.db_instance.show_all_groupnames_or_genges('genre'))
         self.genres_list.hide()
+
+        self.search_music_list = self.list_widget_create(
+                'search_music_list', self.parser_lounch
+                )
+        self.search_music_list.hide()
 
         self.back_button = self.push_button_create(
                 'back_button', '<<Back', 13, self.back_button_slot
@@ -130,9 +138,9 @@ class Ui_MainWindow(QMainWindow):
         """
         self.music_by_genre_list = self.list_widget_create(
                 'music_by_genre_list',
-                self.db_instance.get_groups_of_selected_genre(item.text()),
                 self.parser_lounch
                 )
+        self.music_by_genre_list.addItems(self.db_instance.get_groups_of_selected_genre(item.text()))
 
         self.back_button.hide()
         self.vbox.addWidget(self.music_by_genre_list)
@@ -152,6 +160,8 @@ class Ui_MainWindow(QMainWindow):
         self.music_list.hide()
         self.genres_list.hide()
         self.back_button.hide()
+        self.search_bar.hide()
+        self.search_music_list.hide()
         self.show_all_groups_button.show()
         self.show_genres_button.show()
 
@@ -162,6 +172,7 @@ class Ui_MainWindow(QMainWindow):
         self.music_list.show()
         self.back_button
         self.back_button.show()
+        self.search_bar.show()
        
     def show_genres_button_slot(self) -> None:
         self.genres_list.show()
@@ -191,9 +202,23 @@ class Ui_MainWindow(QMainWindow):
         self.vbox.addWidget(self.progressBar)
         return self.progressBar
 
+    # def list_widget_create(
+            # self, objname: str, items: list | set,
+            # slot: Callable[[str], None]) -> QtWidgets.QListWidget:
+        # list_font = QtGui.QFont()
+        # list_font.setPointSize(15)
+
+        # self.list = QtWidgets.QListWidget(self)
+        # self.list.setObjectName(objname)
+        # self.list.setFont(list_font)
+        # self.list.setStyleSheet("color: rgb(39, 39, 39);")
+        # self.list.addItems(items)
+        # self.list.itemClicked.connect(slot)
+
+        # self.vbox.addWidget(self.list)
+        # return self.list
     def list_widget_create(
-            self, objname: str, items: list | set,
-            slot: Callable[[str], None]) -> QtWidgets.QListWidget:
+            self, objname: str, slot: Callable[[str], None]) -> QtWidgets.QListWidget:
         list_font = QtGui.QFont()
         list_font.setPointSize(15)
 
@@ -201,7 +226,6 @@ class Ui_MainWindow(QMainWindow):
         self.list.setObjectName(objname)
         self.list.setFont(list_font)
         self.list.setStyleSheet("color: rgb(39, 39, 39);")
-        self.list.addItems(items)
         self.list.itemClicked.connect(slot)
 
         self.vbox.addWidget(self.list)
@@ -254,6 +278,31 @@ class Ui_MainWindow(QMainWindow):
 
         self.vbox.addWidget(self.pushButton)
         return self.pushButton
+
+    def search_bar_create(self):
+        search_bar_font = QtGui.QFont()
+        search_bar_font.setPointSize(10)
+
+        self.search_bar = QtWidgets.QLineEdit(self)
+        self.search_bar.setFont(search_bar_font)
+        self.search_bar.setStyleSheet("color: rgb(39, 39, 39);")
+        self.search_bar.setPlaceholderText('Search')
+        self.completer = QtWidgets.QCompleter(self.db_instance.show_all_groupnames_or_genges('group_name'))
+        self.search_bar.setCompleter(self.completer)
+        self.search_bar.textChanged.connect(self.seach_bar_slot)
+        self.vbox.addWidget(self.search_bar)
+        return self.search_bar
+
+    def seach_bar_slot(self, text):
+        found_music = re.findall(text, str(self.db_instance.show_all_groupnames_or_genges('group_name')))
+        if text in self.db_instance.show_all_groupnames_or_genges('group_name'):
+            self.music_list.hide()
+            self.search_music_list.addItems(found_music)
+            self.search_music_list.show()
+        else:
+            self.search_music_list.hide()
+            self.music_list.show()
+
 
 if __name__ == "__main__":
     import sys
