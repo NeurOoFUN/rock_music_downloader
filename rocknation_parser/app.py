@@ -60,7 +60,6 @@ class Ui_MainWindow(QMainWindow):
                 )
         self.music_list.addItems(self.db_instance.show_all_groupnames_or_genges('group_name'))
         self.search_bar = self.search_bar_create()
-        self.search_bar.hide()
         self.music_list.hide()
 
         self.genres_list = self.list_widget_create(
@@ -106,6 +105,8 @@ class Ui_MainWindow(QMainWindow):
                 )
 
         self.music_list.hide()
+        self.search_bar.hide()
+        self.search_music_list.hide()
 
         self.log_from_writer_module.show()
         self.log_from_parser_module.show()
@@ -123,6 +124,8 @@ class Ui_MainWindow(QMainWindow):
 
         self.show_all_groups_button.show()
         self.show_genres_button.show()
+        self.search_bar.clear()
+        self.search_bar.show()
 
         self.albums_pbar.hide()
         self.songs_pbar.hide()
@@ -161,22 +164,26 @@ class Ui_MainWindow(QMainWindow):
         self.genres_list.hide()
         self.back_button.hide()
         self.search_bar.hide()
+        self.search_bar.clear()
         self.search_music_list.hide()
+        self.search_music_list.clear()
         self.show_all_groups_button.show()
         self.show_genres_button.show()
+        self.search_bar.show()
 
     def show_all_groups_button_slot(self) -> None:
         self.music_list.show()
         self.show_all_groups_button.hide()
         self.show_genres_button.hide()
+        self.search_bar.hide()
         self.music_list.show()
         self.back_button
         self.back_button.show()
-        self.search_bar.show()
        
     def show_genres_button_slot(self) -> None:
         self.genres_list.show()
         self.show_genres_button.hide()
+        self.search_bar.hide()
         self.show_all_groups_button.hide()
         self.genres_list.show()
         self.back_button
@@ -195,28 +202,6 @@ class Ui_MainWindow(QMainWindow):
         """
         self.parser.user_answer = button.text()
 
-    def create_progress_bar(self, obj_name: str, step: int = 0):
-        self.progressBar = QtWidgets.QProgressBar(self)
-        self.progressBar.setProperty("value", step)
-        self.progressBar.setObjectName(obj_name)
-        self.vbox.addWidget(self.progressBar)
-        return self.progressBar
-
-    # def list_widget_create(
-            # self, objname: str, items: list | set,
-            # slot: Callable[[str], None]) -> QtWidgets.QListWidget:
-        # list_font = QtGui.QFont()
-        # list_font.setPointSize(15)
-
-        # self.list = QtWidgets.QListWidget(self)
-        # self.list.setObjectName(objname)
-        # self.list.setFont(list_font)
-        # self.list.setStyleSheet("color: rgb(39, 39, 39);")
-        # self.list.addItems(items)
-        # self.list.itemClicked.connect(slot)
-
-        # self.vbox.addWidget(self.list)
-        # return self.list
     def list_widget_create(
             self, objname: str, slot: Callable[[str], None]) -> QtWidgets.QListWidget:
         list_font = QtGui.QFont()
@@ -279,6 +264,13 @@ class Ui_MainWindow(QMainWindow):
         self.vbox.addWidget(self.pushButton)
         return self.pushButton
 
+    def create_progress_bar(self, obj_name: str, step: int = 0):
+        self.progressBar = QtWidgets.QProgressBar(self)
+        self.progressBar.setProperty("value", step)
+        self.progressBar.setObjectName(obj_name)
+        self.vbox.addWidget(self.progressBar)
+        return self.progressBar
+
     def search_bar_create(self):
         search_bar_font = QtGui.QFont()
         search_bar_font.setPointSize(10)
@@ -289,19 +281,24 @@ class Ui_MainWindow(QMainWindow):
         self.search_bar.setPlaceholderText('Search')
         self.completer = QtWidgets.QCompleter(self.db_instance.show_all_groupnames_or_genges('group_name'))
         self.search_bar.setCompleter(self.completer)
-        self.search_bar.textChanged.connect(self.seach_bar_slot)
+        self.search_bar.textChanged.connect(self.search_bar_slot)
         self.vbox.addWidget(self.search_bar)
         return self.search_bar
 
-    def seach_bar_slot(self, text):
+    def search_bar_slot(self, text):
         found_music = re.findall(text, str(self.db_instance.show_all_groupnames_or_genges('group_name')))
         if text in self.db_instance.show_all_groupnames_or_genges('group_name'):
-            self.music_list.hide()
+            self.search_music_list.clear()
+            self.show_all_groups_button.hide()
+            self.show_genres_button.hide()
             self.search_music_list.addItems(found_music)
             self.search_music_list.show()
+            self.back_button.show()
         else:
+            self.show_all_groups_button.show()
+            self.show_genres_button.show()
             self.search_music_list.hide()
-            self.music_list.show()
+            self.back_button.hide()
 
 
 if __name__ == "__main__":
