@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup
 from tools import session
 from database.sql_base import MusicDbManager
 
-__all__ = ['find_all_groups']
+__all__ = ['find_all_bands']
 
 music_manager_instance = MusicDbManager()
 
@@ -16,8 +16,9 @@ def pagenation_count() -> int:
     return int(pagen_link) + 1
 
 
-def find_all_groups() -> None:
+def find_all_bands() -> None:
     music_manager_instance.create_db()
+
     for i in range(1, pagenation_count()):
         response = session.get(url='https://rocknation.su/mp3/' + str(i)).text
         soup = BeautifulSoup(response, 'lxml')

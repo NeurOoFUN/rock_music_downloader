@@ -25,6 +25,7 @@ class Parser(Saver):
               log_from_writer_module: QtWidgets.QLabel, 
               step_for_albumpb: QtWidgets.QProgressBar,
               step_for_songpb: QtWidgets.QProgressBar) -> None:
+
         for self.page_count in range(1, 10):  # pagenation.
             album_number = 1
             response = session.get(
