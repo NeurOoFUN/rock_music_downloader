@@ -60,8 +60,8 @@ class Saver:
             music_path = os.path.normpath(
                 os.path.join(self.path_for_music, filtered_band_name, filtered_album_name, f'{song_count}. {song_name}.mp3')
             )
-            # with open(music_path, 'wb') as file:
-                # file.write(download)
+            with open(music_path, 'wb') as file:
+                file.write(download)
 
             log_from_writer_module.setText(f'Song: {song_name} {song_count} / {len(pattern_of_ref)}')
 
