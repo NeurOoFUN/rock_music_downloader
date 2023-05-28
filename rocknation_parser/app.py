@@ -13,7 +13,7 @@ import app_images_rc
 class Ui_MainWindow(QMainWindow):
     """
 
-    The app.
+    Main class of the application.
     """
     def __init__(self):
         super().__init__()
@@ -29,9 +29,9 @@ class Ui_MainWindow(QMainWindow):
 
         self.vbox = QtWidgets.QVBoxLayout(self.centralwidget)
 
-        self.show_all_groups_button = self.push_button_create(
-                'show_all_groups_button', 'Show all groups',
-                70, self.show_all_groups_button_slot
+        self.show_all_bands_button = self.push_button_create(
+                'show_all_bands_button', 'Show all bands',
+                70, self.show_all_bands_button_slot
                 )
 
         self.show_genres_button = self.push_button_create(
@@ -58,14 +58,14 @@ class Ui_MainWindow(QMainWindow):
         self.music_list = self.list_widget_create(
                 'music_list', self.parser_lounch
                 )
-        self.music_list.addItems(self.db_instance.show_all_groupnames_or_genges('group_name'))
+        self.music_list.addItems(self.db_instance.show_all_bandnames_or_genges('band_name'))
         self.search_bar = self.search_bar_create()
         self.music_list.hide()
 
         self.genres_list = self.list_widget_create(
                 'genres_list', self.show_music_of_the_selected_genre
                 )
-        self.genres_list.addItems(self.db_instance.show_all_groupnames_or_genges('genre'))
+        self.genres_list.addItems(self.db_instance.show_all_bandnames_or_genges('genre'))
         self.genres_list.hide()
 
         self.search_music_list = self.list_widget_create(
@@ -90,12 +90,12 @@ class Ui_MainWindow(QMainWindow):
 
         self.parser.path_for_music = self.file_dialog().strip()
 
-        selected_group = self.db_instance.group_selection(item.text())
-        self.parser.link_to_selected_group = selected_group
+        selected_band = self.db_instance.band_selection(item.text())
+        self.parser.link_to_selected_band = selected_band
 
-        filtered_group_name = self.parser.group_name = re.sub(r'[><:"/\|?*]', '_', item.text()).strip()
+        filtered_band_name = self.parser.band_name = re.sub(r'[><:"/\|?*]', '_', item.text()).strip()
 
-        full_path = os.path.normpath(os.path.join(self.parser.path_for_music, filtered_group_name))
+        full_path = os.path.normpath(os.path.join(self.parser.path_for_music, filtered_band_name))
         if not os.path.exists(full_path):
             os.mkdir(full_path)
 
@@ -110,7 +110,7 @@ class Ui_MainWindow(QMainWindow):
 
         self.log_from_writer_module.show()
         self.log_from_parser_module.show()
-        self.start_notice.setText(f'{filtered_group_name}\nis downloading...')
+        self.start_notice.setText(f'{filtered_band_name}\nis downloading...')
         self.start_notice.show()
 
         self.albums_pbar.show()
@@ -122,7 +122,7 @@ class Ui_MainWindow(QMainWindow):
         self.log_from_parser_module.hide()
         self.start_notice.hide()
 
-        self.show_all_groups_button.show()
+        self.show_all_bands_button.show()
         self.show_genres_button.show()
         self.search_bar.clear()
         self.search_bar.show()
@@ -143,7 +143,7 @@ class Ui_MainWindow(QMainWindow):
                 'music_by_genre_list',
                 self.parser_lounch
                 )
-        self.music_by_genre_list.addItems(self.db_instance.get_groups_of_selected_genre(item.text()))
+        self.music_by_genre_list.addItems(self.db_instance.get_bands_of_selected_genre(item.text()))
 
         self.back_button.hide()
         self.vbox.addWidget(self.music_by_genre_list)
@@ -167,13 +167,13 @@ class Ui_MainWindow(QMainWindow):
         self.search_bar.clear()
         self.search_music_list.hide()
         self.search_music_list.clear()
-        self.show_all_groups_button.show()
+        self.show_all_bands_button.show()
         self.show_genres_button.show()
         self.search_bar.show()
 
-    def show_all_groups_button_slot(self) -> None:
+    def show_all_bands_button_slot(self) -> None:
         self.music_list.show()
-        self.show_all_groups_button.hide()
+        self.show_all_bands_button.hide()
         self.show_genres_button.hide()
         self.search_bar.hide()
         self.music_list.show()
@@ -184,7 +184,7 @@ class Ui_MainWindow(QMainWindow):
         self.genres_list.show()
         self.show_genres_button.hide()
         self.search_bar.hide()
-        self.show_all_groups_button.hide()
+        self.show_all_bands_button.hide()
         self.genres_list.show()
         self.back_button
         self.back_button.show()
@@ -279,23 +279,23 @@ class Ui_MainWindow(QMainWindow):
         self.search_bar.setFont(search_bar_font)
         self.search_bar.setStyleSheet("color: rgb(39, 39, 39);")
         self.search_bar.setPlaceholderText('Search')
-        self.completer = QtWidgets.QCompleter(self.db_instance.show_all_groupnames_or_genges('group_name'))
+        self.completer = QtWidgets.QCompleter(self.db_instance.show_all_bandnames_or_genges('band_name'))
         self.search_bar.setCompleter(self.completer)
         self.search_bar.textChanged.connect(self.search_bar_slot)
         self.vbox.addWidget(self.search_bar)
         return self.search_bar
 
     def search_bar_slot(self, text):
-        found_music = re.findall(text, str(self.db_instance.show_all_groupnames_or_genges('group_name')))
-        if text in self.db_instance.show_all_groupnames_or_genges('group_name'):
+        found_music = re.findall(text, str(self.db_instance.show_all_bandnames_or_genges('band_name')))
+        if text in self.db_instance.show_all_bandnames_or_genges('band_name'):
             self.search_music_list.clear()
-            self.show_all_groups_button.hide()
+            self.show_all_bands_button.hide()
             self.show_genres_button.hide()
             self.search_music_list.addItems(found_music)
             self.search_music_list.show()
             self.back_button.show()
         else:
-            self.show_all_groups_button.show()
+            self.show_all_bands_button.show()
             self.show_genres_button.show()
             self.search_music_list.hide()
             self.back_button.hide()

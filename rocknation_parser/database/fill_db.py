@@ -32,7 +32,7 @@ def find_all_bands() -> None:
                 genre = l.find_all('td')[1].get_text()
 
                 music_manager_instance.write_all_data_to_db(
-                        group_name=name, group_link=link, genre=genre
+                        band_name=name, band_link=link, genre=genre
                         )
 
             except AttributeError:

@@ -18,7 +18,7 @@ class Parser(Saver):
     def __init__(self):
         super().__init__()
 
-        self.link_to_selected_group = str()
+        self.link_to_selected_band = str()
         self.user_answer = str()
 
     def parse(self, log_from_parser_module: QtWidgets.QLabel,
@@ -29,7 +29,7 @@ class Parser(Saver):
         for self.page_count in range(1, 10):  # pagenation.
             album_number = 1
             response = session.get(
-                self.link_to_selected_group + f'/{str(self.page_count)}'
+                self.link_to_selected_band + f'/{str(self.page_count)}'
             )
 
             soup = BeautifulSoup(response.text, 'lxml')

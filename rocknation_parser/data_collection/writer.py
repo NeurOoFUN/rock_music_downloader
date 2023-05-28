@@ -10,7 +10,7 @@ class Saver:
     def __init__(self):
         self.album_refs = str()
         self.album_name = str()
-        self.group_name = str()
+        self.band_name = str()
 
         self.path_for_music = str()
 
@@ -20,11 +20,11 @@ class Saver:
         Download and save all albums with .mp3 songs.
         """
         response = session.get(url=self.album_refs).text
-        filtered_group_name = self.record_path_filter(self.group_name)
+        filtered_band_name = self.record_path_filter(self.band_name)
         filtered_album_name = self.record_path_filter(self.album_name)
         os.mkdir(
             os.path.normpath(
-                os.path.join(self.path_for_music, filtered_group_name, filtered_album_name)
+                os.path.join(self.path_for_music, filtered_band_name, filtered_album_name)
                 )
             )
         # regex, parse links from JS.
@@ -44,7 +44,7 @@ class Saver:
 
             self.music_recording(download, song_count, pattern_of_ref,
                                  song_name, log_from_writer_module,
-                                 filtered_group_name, filtered_album_name)
+                                 filtered_band_name, filtered_album_name)
             step_for_songpb.setProperty("value", step)
             step += 100 / len(pattern_of_ref)
             song_count += 1
@@ -56,9 +56,9 @@ class Saver:
 
     def music_recording(self, download, song_count: int, pattern_of_ref: list,
                         song_name: str, log_from_writer_module: QtWidgets.QLabel,
-                        filtered_group_name: str, filtered_album_name: str) -> None:
+                        filtered_band_name: str, filtered_album_name: str) -> None:
             music_path = os.path.normpath(
-                os.path.join(self.path_for_music, filtered_group_name, filtered_album_name, f'{song_count}. {song_name}.mp3')
+                os.path.join(self.path_for_music, filtered_band_name, filtered_album_name, f'{song_count}. {song_name}.mp3')
             )
             # with open(music_path, 'wb') as file:
                 # file.write(download)
